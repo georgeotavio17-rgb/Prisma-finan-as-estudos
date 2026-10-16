@@ -1,66 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101827">
-  <title>Prisma — Finanças & Estudos</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #101827;
-      color: #f8fafc;
-      padding: 24px;
-    }
-    header { margin-bottom: 32px; }
-    .logo { color: #7dd3fc; font-size: 28px; font-weight: bold; }
-    p { color: #aab8ca; line-height: 1.6; }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 22px;
-    }
-    h2 { margin-top: 0; }
-    button {
-      background: #38bdf8;
-      color: #082f49;
-      border: 0;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="logo">◆ Prisma</div>
-    <p>Finanças organizadas. Estudos em evolução.</p>
-  </header>
-
-  <main class="cards">
-    <section class="card">
-      <h2>💰 Finanças</h2>
-      <p>Organize receitas, despesas, contas e metas financeiras.</p>
-      <button onclick="alert('Teste de gravação autorizado!')">
-        Acessar finanças
-      </button>
-    </section>
-
-    <section class="card">
-      <h2>📚 Estudos</h2>
-      <p>Planeje matérias, tarefas, revisões e sua preparação para concursos.</p>
-      <button onclick="alert('Módulo de estudos em construção!')">
-        Acessar estudos
-      </button>
-    </section>
-  </main>
-</body>
-</html>
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827"><title>Prisma — Finanças & Estudos</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color-scheme:dark;--bg:#0b1220;--panel:#172338;--border:#2c3c53;--text:#f1f5f9;--muted:#9aabc0;--accent:#7dd3fc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);line-height:1.5}main{max-width:1100px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.brand{font-size:27px;font-weight:800;color:var(--accent)}p,small{color:var(--muted)}nav{display:flex;gap:8px;overflow:auto;margin:24px 0}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#082337;font-weight:700}button.ghost{background:#23334a;color:var(--text)}button.danger{background:#4b2630;color:#ffe0e5}nav button.active{background:var(--accent);color:#082337}h1{font-size:28px}h2{font-size:19px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;min-width:0}.stat b{display:block;font-size:25px;overflow-wrap:anywhere}.stat small{display:block}label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}input,select,textarea{width:100%;border-radius:9px;border:1px solid #42516a;background:#0d1728;color:var(--text);padding:11px;font:inherit}form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}.entry{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding:12px 0}.entry:last-child{border:0}.entry b{display:block;overflow-wrap:anywhere}.entry small{display:block}.entry .right{display:flex;align-items:center;gap:8px}.income{color:#6ee7b7}.expense{color:#fda4af}.muted{color:var(--muted)}.hidden{display:none}.notice{border:1px solid #756033;background:#332a17;border-radius:12px;padding:14px;color:#f9dfaa;font-size:13px;margin:20px 0}.progress{height:10px;background:#2b3c54;border-radius:20px;overflow:hidden}.progress div{height:100%;background:#6ee7b7}input[type=checkbox]{width:18px;height:18px}.taskcheck{display:flex;align-items:center;gap:10px;min-width:0}.taskcheck div{min-width:0}@media(max-width:700px){main{padding:16px}.grid,.two{grid-template-columns:1fr}form{grid-template-columns:1fr}.full{grid-column:auto}.entry{align-items:flex-start}.entry .right{flex-shrink:0}}
+</style></head><body><main>
+<header><div><div class="brand">◆ Prisma</div><small>Finanças organizadas. Estudos em evolução.</small></div><button id="backup" class="ghost">Exportar backup</button></header>
+<nav aria-label="Seções"><button class="active" data-tab="inicio">Visão geral</button><button class="ghost" data-tab="financas">Finanças</button><button class="ghost" data-tab="estudos">Estudos</button></nav>
+<section id="inicio"><h1>Seu painel</h1><p>Acompanhe suas finanças e seu progresso nos estudos.</p><div class="grid"><div class="card stat"><small>Saldo registrado</small><b id="saldo">R$ 0,00</b></div><div class="card stat"><small>Receitas neste mês</small><b class="income" id="receitas">R$ 0,00</b></div><div class="card stat"><small>Despesas neste mês</small><b class="expense" id="despesas">R$ 0,00</b></div></div><div class="two"><div class="card"><h2>Últimos lançamentos</h2><div id="recentes"></div><button class="ghost" data-go="financas">Abrir finanças</button></div><div class="card"><h2>Progresso nos estudos</h2><b id="resumoTarefas"></b><div class="progress"><div id="barra"></div></div><p id="proxima"></p><button class="ghost" data-go="estudos">Abrir estudos</button></div></div></section>
+<section id="financas" class="hidden"><h1>Finanças</h1><p>Registre receitas e despesas e acompanhe seus lançamentos.</p><div class="two"><div class="card"><h2>Novo lançamento</h2><form id="formFin"><div><label for="tipo">Tipo</label><select id="tipo"><option value="expense">Despesa</option><option value="income">Receita</option></select></div><div><label for="valor">Valor (R$)</label><input id="valor" type="number" min="0.01" step="0.01" required></div><div><label for="categoria">Categoria</label><select id="categoria"><option>Alimentação</option><option>Moradia</option><option>Transporte</option><option>Educação</option><option>Saúde</option><option>Lazer</option><option>Salário</option><option>Investimentos</option><option>Outros</option></select></div><div><label for="data">Data</label><input id="data" type="date" required></div><div class="full"><label for="descricao">Descrição</label><input id="descricao" maxlength="100" placeholder="Ex.: mercado, salário..." required></div><button class="full" type="submit">Salvar lançamento</button></form></div><div class="card"><h2>Histórico</h2><label for="filtro">Filtrar lançamentos</label><select id="filtro"><option value="all">Todos</option><option value="income">Receitas</option><option value="expense">Despesas</option></select><div id="historico"></div></div></div></section>
+<section id="estudos" class="hidden"><h1>Estudos</h1><p>Organize matérias, tarefas, revisões e preparação para provas.</p><div class="two"><div class="card"><h2>Nova tarefa</h2><form id="formEst"><div class="full"><label for="titulo">O que estudar?</label><input id="titulo" maxlength="120" placeholder="Ex.: Direito Civil — contratos" required></div><div><label for="materia">Matéria</label><input id="materia" maxlength="70" placeholder="Ex.: Direito Civil" required></div><div><label for="prazo">Prazo (opcional)</label><input id="prazo" type="date"></div><div class="full"><label for="notas">Observações</label><textarea id="notas" maxlength="300" rows="2" placeholder="Artigos, páginas, tópicos..."></textarea></div><button type="submit" class="full">Salvar tarefa</button></form></div><div class="card"><h2>Suas tarefas</h2><div id="listaTarefas"></div></div></div></section>
+<div class="notice">Esta primeira versão salva as informações somente neste navegador. Não há sincronização entre aparelhos nem login. Exporte backups regularmente e não cadastre dados bancários sensíveis.</div><small>Prisma • Primeira versão funcional</small></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),cash=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+const localDate=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v:[]}catch{return []}};
+let fin=read('prisma_fin_v1'),est=read('prisma_est_v1');
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString()+Math.random().toString(36).slice(2);
+function persist(){try{localStorage.setItem('prisma_fin_v1',JSON.stringify(fin));localStorage.setItem('prisma_est_v1',JSON.stringify(est));render()}catch{alert('Não foi possível salvar neste navegador. Exporte seus dados e verifique o armazenamento.')}}
+function rowFin(t){return '<div class="entry"><div><b>'+safe(t.description)+'</b><small>'+safe(t.category)+' · '+safe(t.date)+'</small></div><div class="right"><b class="'+(t.type==='income'?'income':'expense')+'">'+(t.type==='income'?'+':'−')+cash(t.amount)+'</b><button class="danger" data-del-fin="'+safe(t.id)+'" aria-label="Excluir lançamento">×</button></div></div>'}
+function render(){const month=localDate().slice(0,7),income=fin.filter(t=>t.type==='income'&&t.date.startsWith(month)).reduce((s,t)=>s+t.amount,0),expense=fin.filter(t=>t.type==='expense'&&t.date.startsWith(month)).reduce((s,t)=>s+t.amount,0),balance=fin.reduce((s,t)=>s+(t.type==='income'?t.amount:-t.amount),0);$('saldo').textContent=cash(balance);$('receitas').textContent=cash(income);$('despesas').textContent=cash(expense);const sorted=[...fin].sort((a,b)=>b.date.localeCompare(a.date));$('recentes').innerHTML=sorted.slice(0,3).map(rowFin).join('')||'<p>Nenhum lançamento ainda.</p>';$('historico').innerHTML=sorted.filter(t=>$('filtro').value==='all'||t.type===$('filtro').value).map(rowFin).join('')||'<p>Nenhum lançamento encontrado.</p>';const done=est.filter(t=>t.done).length,pct=est.length?Math.round(done/est.length*100):0;$('resumoTarefas').textContent=done+' de '+est.length+' tarefas concluídas ('+pct+'%)';$('barra').style.width=pct+'%';$('proxima').textContent=est.find(t=>!t.done)?.title||'Cadastre sua primeira tarefa de estudo.';$('listaTarefas').innerHTML=[...est].sort((a,b)=>Number(a.done)-Number(b.done)).map(t=>'<div class="entry"><label class="taskcheck"><input type="checkbox" data-check="'+safe(t.id)+'" '+(t.done?'checked':'')+'><div><b style="'+(t.done?'text-decoration:line-through;opacity:.6':'')+'">'+safe(t.title)+'</b><small>'+safe(t.subject)+(t.due?' · '+safe(t.due):'')+'</small>'+(t.notes?'<small>'+safe(t.notes)+'</small>':'')+'</div></label><button class="danger" data-del-est="'+safe(t.id)+'" aria-label="Excluir tarefa">×</button></div>').join('')||'<p>Nenhuma tarefa cadastrada.</p>'}
+function show(id){['inicio','financas','estudos'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===id);b.classList.toggle('ghost',b.dataset.tab!==id)})}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>show(b.dataset.tab));document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+$('data').value=localDate();$('filtro').onchange=render;
+$('formFin').onsubmit=e=>{e.preventDefault();const amount=Number($('valor').value),description=$('descricao').value.trim();if(!Number.isFinite(amount)||amount<=0||!description)return;fin.push({id:uid(),type:$('tipo').value,amount,category:$('categoria').value,date:$('data').value,description});e.target.reset();$('data').value=localDate();persist()};
+$('formEst').onsubmit=e=>{e.preventDefault();const title=$('titulo').value.trim(),subject=$('materia').value.trim();if(!title||!subject)return;est.push({id:uid(),title,subject,due:$('prazo').value,notes:$('notas').value.trim(),done:false});e.target.reset();persist()};
+document.addEventListener('click',e=>{const f=e.target.closest('[data-del-fin]'),t=e.target.closest('[data-del-est]');if(f&&confirm('Excluir este lançamento?')){fin=fin.filter(x=>x.id!==f.dataset.delFin);persist()}if(t&&confirm('Excluir esta tarefa?')){est=est.filter(x=>x.id!==t.dataset.delEst);persist()}});
+document.addEventListener('change',e=>{if(e.target.matches('[data-check]')){const t=est.find(x=>x.id===e.target.dataset.check);if(t){t.done=e.target.checked;persist()}}});
+$('backup').onclick=()=>{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),finances:fin,studies:est},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='prisma-backup-'+localDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+render();
+</script></body></html>
