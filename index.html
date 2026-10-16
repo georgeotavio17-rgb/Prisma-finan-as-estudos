@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Prisma — Finanças & Estudos</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: #f8fafc;
+      padding: 24px;
+    }
+    header { margin-bottom: 32px; }
+    .logo { color: #7dd3fc; font-size: 28px; font-weight: bold; }
+    p { color: #aab8ca; line-height: 1.6; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 22px;
+    }
+    h2 { margin-top: 0; }
+    button {
+      background: #38bdf8;
+      color: #082f49;
+      border: 0;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">◆ Prisma</div>
+    <p>Finanças organizadas. Estudos em evolução.</p>
+  </header>
+
+  <main class="cards">
+    <section class="card">
+      <h2>💰 Finanças</h2>
+      <p>Organize receitas, despesas, contas e metas financeiras.</p>
+      <button onclick="alert('Módulo financeiro em construção!')">
+        Acessar finanças
+      </button>
+    </section>
+
+    <section class="card">
+      <h2>📚 Estudos</h2>
+      <p>Planeje matérias, tarefas, revisões e sua preparação para concursos.</p>
+      <button onclick="alert('Módulo de estudos em construção!')">
+        Acessar estudos
+      </button>
+    </section>
+  </main>
+</body>
+</html>
