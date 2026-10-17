@@ -89,21 +89,24 @@
 </main>
 <script type="module">
 let createClient;
-try{({createClient}=await import('https://esm.sh/@supabase/supabase-js@2.57.0'))}catch(esmError){try{({createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm'))}catch(cdnError){document.getElementById('sessionLoading')?.classList.add('hidden');document.getElementById('authView')?.classList.remove('hidden');const authStatus=document.getElementById('authStatus');if(authStatus)authStatus.textContent='Não foi possível carregar o serviço de acesso. Verifique a conexão e atualize a página.';throw cdnError}}
+const importWithTimeout=(url,timeoutMs=7000)=>new Promise((resolve,reject)=>{
+ const timer=setTimeout(()=>reject(new Error('Tempo limite ao carregar o serviço de acesso.')),timeoutMs);
+ import(url).then(value=>{clearTimeout(timer);resolve(value)},error=>{clearTimeout(timer);reject(error)});
+});
+try{({createClient}=await importWithTimeout('https://esm.sh/@supabase/supabase-js@2.57.0'))}
+catch(esmError){
+ try{({createClient}=await importWithTimeout('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm'))}
+ catch(cdnError){
+  document.getElementById('sessionLoading')?.classList.add('hidden');
+  document.getElementById('authView')?.classList.remove('hidden');
+  const authStatus=document.getElementById('authStatus');
+  if(authStatus)authStatus.textContent='Não foi possível carregar o serviço de acesso. Verifique a conexão e atualize a página.';
+  throw cdnError;
+ }
+}
 'use strict';
 const SUPABASE_URL='https://rbaospucwbuarnfofeep.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_5CXIWn6TjRZccXHr1z3iEQ_XsU7JyZw';
-const authStorage=(()=>{
- let databasePromise;
- const openDatabase=()=>{if(!databasePromise)databasePromise=new Promise((resolve,reject)=>{try{const request=window.indexedDB.open('prisma-auth-session',1);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains('sessions'))request.result.createObjectStore('sessions')};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('IndexedDB indisponível'));request.onblocked=()=>reject(new Error('Armazenamento temporariamente bloqueado'))}catch(error){reject(error)}});return databasePromise};
- const runDatabase=(mode,operation)=>openDatabase().then(database=>new Promise((resolve,reject)=>{let result;let transaction;try{transaction=database.transaction('sessions',mode);const request=operation(transaction.objectStore('sessions'));request.onsuccess=()=>{result=request.result};request.onerror=()=>reject(request.error||new Error('Falha no armazenamento')) ;transaction.oncomplete=()=>resolve(result);transaction.onerror=()=>reject(transaction.error||new Error('Falha no armazenamento'));transaction.onabort=()=>reject(transaction.error||new Error('Armazenamento cancelado'))}catch(error){reject(error)}}));
- const browserStorages=()=>{const stores=[];try{stores.push(window.localStorage)}catch{}try{stores.push(window.sessionStorage)}catch{}return stores};
- return{
-  async getItem(key){try{const value=await runDatabase('readonly',store=>store.get(key));if(value!==undefined&&value!==null)return value}catch{}for(const storage of browserStorages()){try{const value=storage.getItem(key);if(value!==null){try{await runDatabase('readwrite',store=>store.put(value,key))}catch{}return value}}catch{}}return null},
-  async setItem(key,value){let saved=false;try{await runDatabase('readwrite',store=>store.put(value,key));saved=true}catch{}for(const storage of browserStorages()){try{storage.setItem(key,value);saved=true}catch{}}if(!saved)throw new Error('Não foi possível salvar a sessão neste navegador.')},
-  async removeItem(key){let removed=false;try{await runDatabase('readwrite',store=>store.delete(key));removed=true}catch{}for(const storage of browserStorages()){try{storage.removeItem(key);removed=true}catch{}}if(!removed)throw new Error('Não foi possível remover a sessão deste navegador.')}
- }
-})();
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,...(authStorage?{storage:authStorage}:{})}});
 let currencyCode='BRL';const $=id=>document.getElementById(id),cash=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:currencyCode}).format(Number(n)||0);
 const localDate=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
