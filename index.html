@@ -45,11 +45,11 @@
     <div class="card investment-metric"><small>Renda mensal informada</small><b id="investmentMonthlyIncome">R$ 0,00</b><small>Estimativa preenchida por você</small></div>
   </div>
   <div class="card investment-rates">
-    <div class="investment-panel-heading"><div><h2>Taxas e referências do mercado</h2><p>Indicadores por classe, com a data e a fonte de cada dado.</p></div></div>
-    <p id="investmentMarketStatus" class="market-status" role="status">Indicadores oficiais e cotações serão carregados ao abrir esta área.</p>
+    <div class="investment-panel-heading"><div><h2>Taxas e referências do mercado</h2><p>Indicadores oficiais com atualização diária ou mensal, conforme a divulgação de cada série.</p></div></div>
+    <p id="investmentMarketStatus" class="market-status" role="status">Indicadores oficiais serão carregados ao abrir esta área.</p>
     <div id="investmentIndicators" class="investment-indicators" aria-live="polite"></div>
     
-    <p class="market-footnote">Taxas oficiais refletem a última divulgação disponível, não uma cotação contínua. Índices são referências de mercado; o retorno de cada ativo depende do produto e do período. Criptoativos e “outros” não têm uma taxa única.</p>
+    <p class="market-footnote">Os valores mostram a última publicação disponível. CDI, Selic efetiva e dólar são atualizados em dias úteis; IPCA e IGP-M são divulgados mensalmente.</p>
   </div>
   <div class="investment-panels">
     <div class="card"><div class="investment-panel-heading"><div><h2>Evolução do patrimônio</h2><p>Histórico registrado a partir do primeiro acompanhamento.</p></div></div><div id="investmentChart" class="investment-chart"></div></div>
@@ -143,14 +143,6 @@ async function fetchBcbSeries(series){
  const value=Number(String(row.valor).replace(',','.'));if(!Number.isFinite(value))throw new Error('Valor inválido');
  return {value,date:row.data};
 }
-async function fetchBrapiIndex(symbol='^BVSP'){
- const response=await fetch('https://brapi.dev/api/v2/stocks/quote?symbols='+encodeURIComponent(symbol),{cache:'no-store'});
- if(!response.ok)throw new Error('HTTP '+response.status);
- const payload=await response.json(),item=(payload.results||[]).find(x=>x.symbol===symbol||x.requestedSymbol===symbol)||(payload.results||[])[0],data=item?.data||item;
- const price=Number(data?.regularMarketPrice||data?.price);if(!Number.isFinite(price)||!price)throw new Error('Índice sem cotação');
- return {value:price,change:Number(data.regularMarketChangePercent)||0,date:payload.requestedAt||data.regularMarketTime||''};
-}
-
 async function fetchPortfolioQuotes(){
  const allowedStocks=['PETR4','MGLU3','VALE3','ITUB4'];
  const allowedFiis=['HGLG11','MXRF11'];
@@ -172,22 +164,12 @@ async function fetchPortfolioQuotes(){
 async function loadMarketIndicators(force=false){
  if(!$('investimentos')||$('investimentos').classList.contains('hidden'))return;
  if(!force&&Date.now()-lastMarketFetch<30*60*1000){renderInvestmentDashboard();return}
- lastMarketFetch=Date.now();$('investmentMarketStatus').textContent='Atualizando indicadores oficiais e cotações…';
+ lastMarketFetch=Date.now();$('investmentMarketStatus').textContent='Atualizando indicadores oficiais…';
  const specs=[{key:'cdi',group:'Renda fixa',label:'CDI',icon:'%',periodLabel:'Taxa anualizada · diária',series:4389,format:'percent',sourceLabel:'Banco Central do Brasil (SGS)'},{key:'selic',group:'Renda fixa',label:'Meta Selic',icon:'↗',periodLabel:'Taxa anual · definida pelo Copom',series:432,format:'percent',sourceLabel:'Banco Central do Brasil (SGS)'},{key:'ipca',group:'Renda fixa',label:'IPCA',icon:'◉',periodLabel:'Variação mensal · divulgação mensal',series:433,format:'percent',sourceLabel:'IBGE, série do BCB (SGS)'},{key:'ipca12m',group:'Renda fixa',label:'IPCA 12 meses',icon:'◉',periodLabel:'Acumulado em 12 meses · mensal',series:13522,format:'percent',sourceLabel:'IBGE, série do BCB (SGS)'},{key:'selicOvernight',group:'Renda fixa',label:'Selic efetiva',icon:'↗',periodLabel:'Taxa efetiva anualizada · diária',series:1178,format:'percent',sourceLabel:'Banco Central do Brasil (SGS)'},{key:'igpm',group:'Renda fixa',label:'IGP-M',icon:'◌',periodLabel:'Variação mensal · divulgação mensal',series:189,format:'percent',sourceLabel:'FGV, série do BCB (SGS)'},{key:'usd',group:'Câmbio',label:'Dólar venda',icon:'$',periodLabel:'PTAX diária · BCB',series:1,format:'currency',sourceLabel:'Banco Central do Brasil (SGS)'}];
  const results=await Promise.allSettled(specs.map(x=>fetchBcbSeries(x.series)));
  marketIndicatorData=specs.map((s,i)=>{const r=results[i];if(r.status!=='fulfilled')return {...s,valueText:'Indisponível',sourceDate:'',sourceLabel:s.sourceLabel,error:true};const value=r.value.value;return {...s,value,valueText:s.format==='percent'?value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'+(s.key==='cdi'||s.key==='selic'||s.key==='selicOvernight'?' a.a.':''):'R$ '+value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4}),sourceDate:r.value.date,sourceLabel:s.sourceLabel,error:false}});const portfolioQuoteCount=await fetchPortfolioQuotes();
- let indexValue=null;try{indexValue=await fetchBrapiIndex()}catch{}
- if(indexValue)marketIndicatorData.push({key:'ibov',group:'Ações',label:'Ibovespa',icon:'▥',periodLabel:(indexValue.change>=0?'+':'')+indexValue.change.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% no pregão · cotação com atraso variável',sourceLabel:'brapi · atraso conforme cobertura',valueText:indexValue.value.toLocaleString('pt-BR',{maximumFractionDigits:0})+' pts',sourceDate:indexValue.date,error:false});
- else marketIndicatorData.push({key:'ibov',group:'Ações',label:'Ibovespa',icon:'▥',periodLabel:'Cotação depende da cobertura da fonte',sourceLabel:'brapi',valueText:'Indisponível',sourceDate:'',error:true});
- let ifix=null;try{ifix=await fetchBrapiIndex('^IFIX')}catch{}
- if(ifix)marketIndicatorData.push({key:'ifix',group:'FIIs',label:'IFIX',icon:'◉',periodLabel:(ifix.change>=0?'+':'')+ifix.change.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% no pregão · índice de referência',sourceLabel:'brapi · atraso conforme cobertura',valueText:ifix.value.toLocaleString('pt-BR',{maximumFractionDigits:0})+' pts',sourceDate:ifix.date,error:false});
- else marketIndicatorData.push({key:'ifix',group:'FIIs',label:'IFIX',icon:'◉',periodLabel:'Índice de referência dos fundos imobiliários listados',sourceLabel:'brapi',valueText:'Indisponível',sourceDate:'',error:true});
- let bitcoin=null;try{const response=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl',{cache:'no-store'});if(!response.ok)throw new Error('Cotação indisponível');const payload=await response.json();const value=Number(payload?.bitcoin?.brl);if(!Number.isFinite(value))throw new Error('Cotação indisponível');bitcoin={value,date:new Date().toISOString()}}catch{}
- if(bitcoin)marketIndicatorData.push({key:'bitcoin',group:'Cripto',label:'Bitcoin (BTC)',icon:'₿',periodLabel:'Preço spot em reais · não é taxa de rendimento',sourceLabel:'CoinGecko',valueText:investmentBRL(bitcoin.value),sourceDate:bitcoin.date,error:false});
- else marketIndicatorData.push({key:'bitcoin',group:'Cripto',label:'Bitcoin (BTC)',icon:'₿',periodLabel:'Não existe uma taxa única para criptoativos; preço varia por ativo',sourceLabel:'CoinGecko',valueText:'Indisponível',sourceDate:'',error:true});
- for(const [group,label] of [['ETFs','Referência de rentabilidade'],['BDRs','Referência de rentabilidade'],['Outros','Referência de rentabilidade']])marketIndicatorData.push({key:'note-'+group,group,label,icon:'i',valueText:'Varia por ativo',periodLabel:group==='ETFs'?'Não há um índice único: depende do índice seguido pelo ETF.':'Não há uma taxa comum; compare cada ativo com seu benchmark.',sourceLabel:'Referência educativa',sourceDate:'',note:true,error:false});
  const available=marketIndicatorData.filter(x=>!x.error).length;
- $('investmentMarketStatus').textContent='Indicadores atualizados: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' · '+available+' de '+marketIndicatorData.length+' fontes respondendo. CDI, Selic e câmbio atualizam por dia útil; inflação, por mês. Cotações B3 sem chave têm cobertura limitada e atraso aproximado de 30 min.';
+ $('investmentMarketStatus').textContent='Indicadores atualizados: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' · '+available+' de '+marketIndicatorData.length+' séries oficiais disponíveis. As séries diárias seguem dias úteis; IPCA e IGP-M têm divulgação mensal. ';
  renderMarketIndicators();
  await saveInvestmentSnapshot();
 }
