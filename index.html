@@ -164,26 +164,18 @@ function renderInvestmentDashboard(){
  $('investmentList').innerHTML=displayed.map(row=>{const quote=investmentQuotes[row.ticker],price=Number(quote?.price)||Number(row.manualPrice)||Number(row.averagePrice)||0,val=Number(row.quantity)*price,profit=(price-Number(row.averagePrice))*Number(row.quantity),profitPct=Number(row.averagePrice)?(price-Number(row.averagePrice))/Number(row.averagePrice)*100:0;return '<div class="investment-row"><div class="investment-asset"><span class="investment-asset-icon">'+investmentTypeIcons[row.type]+'</span><div><b>'+safe(row.ticker)+'</b><small>'+safe(row.name)+' · '+safe(investmentTypeNames[row.type]||'Outro')+'</small></div></div><div class="investment-row-cell"><small>Quantidade</small><b>'+Number(row.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})+'</b></div><div class="investment-row-cell"><small>Preço de compra</small><b>'+investmentBRL(row.averagePrice)+'</b></div><div class="investment-row-cell"><small>Valor atual</small><b>'+investmentBRL(val)+'</b><small class="investment-value-approx">'+safe(investmentPriceSource(row))+'</small></div><div class="investment-row-cell"><small>Rentabilidade</small><b class="'+(profit>=0?'income':'expense')+'">'+(profitPct>=0?'+':'')+profitPct.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%</b></div><div class="investment-row-actions"><button type="button" class="ghost" data-invest-edit="'+safe(row.id)+'" aria-label="Editar '+safe(row.ticker)+'">Editar</button><button type="button" class="danger" data-invest-delete="'+safe(row.id)+'" aria-label="Excluir '+safe(row.ticker)+'">×</button></div></div>'}).join('')||'<div class="investment-empty">'+(positions.length?'Nenhum lançamento encontrado.':'Nenhum lançamento registrado. Use “Novo investimento” para adicionar a primeira compra.')+'</div>';
 }
 async function fetchPortfolioQuotes(){
- const allowedStocks=['PETR4','MGLU3','VALE3','ITUB4'];
- const allowedFiis=['HGLG11','MXRF11'];
- const batches=[
-  {symbols:[...new Set(investments.filter(x=>['acao','etf','bdr'].includes(x.type)&&allowedStocks.includes(x.ticker)).map(x=>x.ticker))]},
-  {symbols:[...new Set(investments.filter(x=>x.type==='fii'&&allowedFiis.includes(x.ticker)).map(x=>x.ticker))]}
- ].filter(x=>x.symbols.length);
+ const symbols=[...new Set(investments.map(x=>String(x.ticker||'').trim().toUpperCase()).filter(Boolean))];
+ if(!symbols.length)return 0;
+ const {data:payload,error}=await supabase.functions.invoke('investment-quotes',{body:{symbols}});
+ if(error||!payload){console.warn('Não foi possível atualizar as cotações pela função protegida.',error?.message||'Sem resposta');return 0}
+ const rows=payload.results||payload.quoteResponse?.result||payload.quotes||[];
  let count=0;
- for(const batch of batches){
-  try{
-   const response=await fetch('https://brapi.dev/api/quote/'+encodeURIComponent(batch.symbols.join(',')),{cache:'no-store'});
-   if(!response.ok)continue;
-   const payload=await response.json(),rows=payload.results||payload.quoteResponse?.result||payload.quotes||[];
-   rows.forEach(row=>{const data=row.data||row,symbol=String(row.symbol||row.requestedSymbol||data.symbol||'').toUpperCase(),price=Number(data.regularMarketPrice||data.price||data.regularMarketPreviousClose);if(symbol&&Number.isFinite(price)&&price>0){investmentQuotes[symbol]={price,date:payload.requestedAt||data.regularMarketTime||''};count++}});
-  }catch{}
- }
+ rows.forEach(row=>{const data=row.data||row,symbol=String(row.symbol||row.requestedSymbol||data.symbol||'').toUpperCase(),price=Number(data.regularMarketPrice||data.price||data.regularMarketPreviousClose);if(symbol&&Number.isFinite(price)&&price>0){investmentQuotes[symbol]={price,date:payload.requestedAt||data.regularMarketTime||''};count++}});
  return count;
 }
 async function refreshInvestmentData(force=false){
  if(!$('investimentos')||$('investimentos').classList.contains('hidden'))return;
- if(!force&&Date.now()-lastInvestmentQuoteRefresh<30*60*1000){renderInvestmentDashboard();return}
+ if(!force&&Date.now()-lastInvestmentQuoteRefresh<5*60*1000){renderInvestmentDashboard();return}
  lastInvestmentQuoteRefresh=Date.now();
  await fetchPortfolioQuotes();
  renderInvestmentDashboard();
