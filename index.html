@@ -107,7 +107,7 @@ catch(esmError){
 'use strict';
 const SUPABASE_URL='https://rbaospucwbuarnfofeep.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_5CXIWn6TjRZccXHr1z3iEQ_XsU7JyZw';
-const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,...(authStorage?{storage:authStorage}:{})}});
+const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let currencyCode='BRL';const $=id=>document.getElementById(id),cash=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:currencyCode}).format(Number(n)||0);
 const localDate=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
