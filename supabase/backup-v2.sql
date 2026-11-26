@@ -1,5 +1,5 @@
 -- Apply only to an isolated test database before production.
-create or replace function public.prisma_restore_v2(payload jsonb, preview boolean default true) returns jsonb language plpgsql security invoker set search_path = '' as $$
+create or replace function public.prisma_restore_v2(payload jsonb, preview boolean default true) returns jsonb language plpgsql security invoker set search_path = '' as $fn$
 declare u uuid := auth.uid(); item jsonb; result jsonb := '{}'::jsonb; added integer; skipped integer;
 begin
 if preview is null then raise exception 'Invalid preview'; end if;
@@ -76,6 +76,6 @@ result:=result||jsonb_build_object('investment_dividends',jsonb_build_object('ne
 if preview then raise sqlstate 'PZ002' using message='preview rollback'; end if;
 exception when sqlstate 'PZ002' then if not preview then raise; end if;
 end;
-return result; end; $;
+return result; end; $fn$;
 revoke all on function public.prisma_restore_v2(jsonb,boolean) from public, anon;
 grant execute on function public.prisma_restore_v2(jsonb,boolean) to authenticated;
