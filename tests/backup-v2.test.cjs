@@ -1,0 +1,13 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const backup=require('../backup-v2.js');
+const empty=()=>({version:2,format:'prisma-backup',transactions:[],study_tasks:[],bill_reminders:[],investments:[],investment_snapshots:[],investment_dividends:[]});
+const tx={type:'expense',amount:12,category:'Outros',transaction_date:'2026-11-26',description:'Teste'};
+test('rejects unknown version',()=>assert.throws(()=>backup.normalize({...empty(),version:3})));
+test('rejects missing collection',()=>{const x=empty();delete x.investments;assert.throws(()=>backup.normalize(x));});
+test('rejects impossible date',()=>assert.throws(()=>backup.normalize({...empty(),transactions:[{...tx,transaction_date:'2026-02-30'}]})));
+test('rejects invalid amount',()=>assert.throws(()=>backup.normalize({...empty(),transactions:[{...tx,amount:-1}]})));
+test('strips user ownership',()=>assert.equal(backup.normalize({...empty(),transactions:[{...tx,user_id:'other'}]}).transactions[0].user_id,undefined));
+test('legacy date mapping',()=>assert.equal(backup.normalize({finances:[{...tx,transaction_date:undefined,date:tx.transaction_date}]}).transactions[0].transaction_date,tx.transaction_date));
+test('cancel never commits',async()=>{const calls=[];const db={rpc:async(n,p)=>{calls.push(p.preview);return {data:{transactions:{new:1,skipped:0}}}}};const result=await backup.restore(db,{size:100,text:async()=>JSON.stringify(empty())},()=>false);assert.equal(result,null);assert.deepEqual(calls,[true]);});
+test('confirmation commits after preview',async()=>{const calls=[];const db={rpc:async(n,p)=>{calls.push(p.preview);return {data:{transactions:{new:1,skipped:0}}}}};await backup.restore(db,{size:100,text:async()=>JSON.stringify(empty())},()=>true);assert.deepEqual(calls,[true,false]);});
