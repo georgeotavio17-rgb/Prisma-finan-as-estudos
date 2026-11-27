@@ -62,7 +62,7 @@ async function restore(db,file,confirmFn){
  const payload=normalize(JSON.parse(await file.text()));
  const call=async preview=>{const {data,error}=await db.rpc('prisma_restore_v2',{payload,preview});if(error)throw error;return data;};
  const plan=await call(true);
- if(!confirmFn(Object.entries(plan).map(([k,v])=>k+': '+v.new+' novos, '+v.skipped+' ignorados').join('\n')+'\n\nConfigurações e perfil existentes não serão alterados. Continuar?'))return null;
+ if(!await confirmFn(Object.entries(plan).map(([k,v])=>k+': '+v.new+' novos, '+v.skipped+' ignorados').join('\n')+'\n\nConfigurações e perfil existentes não serão alterados. Continuar?',plan))return null;
  return await call(false);
 }
 return {normalize,exportData,restore};
